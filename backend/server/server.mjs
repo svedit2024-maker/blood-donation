@@ -1,13 +1,17 @@
 import express from 'express';
 import passport from 'passport';
 import { Strategy as GoogleStrategy } from 'passport-google-oauth20';
+import { Strategy as LocalStrategy } from "passport-local";
+import bcrypt from "bcrypt";
 import session from 'express-session';
 import dotenv from "dotenv";
 import path from "path";
 import mongoose from "mongoose";
+import User from "../modules/schema1.mjs";
 
 dotenv.config();
 const app = express();
+app.use(express.json());
 app.use(express.static(path.resolve("frontend")));
 
 mongoose.connect(process.env.MONGO_URI)
@@ -25,7 +29,10 @@ app.get("/", (req, res) => {
 app.use(session({
     secret: process.env.SESSION_SECRET,
     resave: false,
-    saveUninitialized: false
+    saveUninitialized: false,
+    cookie: {
+    maxAge: 1000 * 60 * 60 * 24 // 1 day
+}
 }));
 
 app.use(passport.initialize());
@@ -41,18 +48,33 @@ passport.use(new GoogleStrategy(
 async (accessToken, refreshToken, profile, done) => {
     // Here you would typically find or create a user in your database
     // For now, we'll just log the profile and call done
-    console.log(profile);
-    done(null, profile);
+   try{
+    let user  = await User.findOne({ googleId: profile.id });
+    if (!user) {
+        user = new User({
+            googleId: profile.id,
+            name: profile.displayName,
+            email: profile.emails[0].value
+        });
+        await user.save();
+    }
+    done(null, user);
+   }
+    catch (error) {
+        done(error, null);
+    }
 }));
 
 passport.serializeUser((user, done) => {
     done(null, user.id);
 });
-
-passport.deserializeUser((id, done) => {
-    // Here you would typically fetch the user from your database by ID
-    // For now, we'll just call done with a mock user
-    done(null, { id });
+passport.deserializeUser(async (id, done) => {
+    try {
+        const user = await User.findById(id);
+        done(null, user);
+    } catch (error) {
+        done(error, null);
+    }
 });
 app.get(
     "/auth/google",
@@ -64,12 +86,29 @@ app.get(
 app.get(
     "/auth/google/callback",
     passport.authenticate("google", {
-        failureRedirect: "/login.html"
+        failureRedirect: "/"
     }),
     (req, res) => {
         res.redirect("/html/main.html");
     }
 );
+
+app.get("/auth/logout", (req, res, next) => {
+    req.logout((err) => {
+        if (err) {
+            return next(err);
+        }
+
+        req.session.destroy((err) => {
+            if (err) {
+                return next(err);
+            }
+
+            res.redirect("/");
+        });
+    });
+});
+
 
 app.listen(3000, () => {
     console.log("Server running on http://localhost:3000");
