@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Blood Donor Finder - Login</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: "Segoe UI", Arial, sans-serif;
+        }
+
+        body {
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: linear-gradient(135deg, #fff5f5, #f8f8f8);
+            padding: 20px;
+        }
+
+        /* MAIN CONTAINER */
+
+        .container {
+            width: 900px;
+            min-height: 540px;
+            display: flex;
+            background: white;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.12);
+        }
+
+        /* =========================
+           LEFT SIDE
+           ========================= */
+
+        .left {
+            width: 50%;
+            background: linear-gradient(145deg, #c62828, #8e0000);
+            color: white;
+            padding: 60px 50px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .left::before {
+            content: "";
+            position: absolute;
+            width: 250px;
+            height: 250px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.08);
+            top: -80px;
+            right: -80px;
+        }
+
+        .left::after {
+            content: "";
+            position: absolute;
+            width: 180px;
+            height: 180px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.06);
+            bottom: -70px;
+            left: -60px;
+        }
+
+        .blood-symbol {
+            font-size: 70px;
+            margin-bottom: 25px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .left h1 {
+            font-size: 40px;
+            line-height: 1.2;
+            margin-bottom: 20px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .left p {
+            font-size: 17px;
+            line-height: 1.7;
+            color: #ffeaea;
+            max-width: 350px;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* =========================
+           RIGHT SIDE
+           ========================= */
+
+        .right {
+            width: 50%;
+            padding: 55px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .right h2 {
+            font-size: 30px;
+            color: #222;
+            margin-bottom: 8px;
+        }
+
+        .subtitle {
+            color: #888;
+            margin-bottom: 30px;
+            font-size: 15px;
+        }
+
+        /* =========================
+           INPUTS
+           ========================= */
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        .input-group > label:not(.show-password) {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .input-group input[type="email"],
+        .input-group input[type="password"],
+        .input-group input[type="text"] {
+            width: 100%;
+            padding: 14px 15px;
+            border: 1px solid #ddd;
+            border-radius: 9px;
+            font-size: 15px;
+            outline: none;
+            transition: 0.2s;
+            background: #fafafa;
+        }
+
+        .input-group input:focus {
+            border-color: #c62828;
+            background: white;
+            box-shadow: 0 0 0 3px rgba(198, 40, 40, 0.08);
+        }
+
+        /* =========================
+           SHOW PASSWORD
+           ========================= */
+
+        .show-password {
+            display: flex !important;
+            align-items: center;
+            gap: 7px;
+            margin-top: 9px;
+            font-weight: normal !important;
+            font-size: 13px !important;
+            color: #777 !important;
+            cursor: pointer;
+        }
+
+        .show-password input {
+            width: auto !important;
+            cursor: pointer;
+            accent-color: #b71c1c;
+        }
+
+        /* =========================
+           LOGIN BUTTON
+           ========================= */
+
+        .login-btn {
+            width: 100%;
+            padding: 14px;
+            margin-top: 5px;
+            border: none;
+            border-radius: 9px;
+            background: linear-gradient(135deg, #c62828, #a71919);
+            color: white;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .login-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 7px 18px rgba(183, 28, 28, 0.25);
+        }
+
+        .login-btn:active {
+            transform: translateY(0);
+        }
+
+        /* =========================
+           DIVIDER
+           ========================= */
+
+        .divider {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin: 25px 0;
+            color: #aaa;
+            font-size: 13px;
+        }
+
+        .divider::before,
+        .divider::after {
+            content: "";
+            flex: 1;
+            height: 1px;
+            background: #e5e5e5;
+        }
+
+        /* =========================
+           GOOGLE BUTTON
+           ========================= */
+
+        .google-btn {
+            width: 100%;
+            padding: 13px;
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 9px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 12px;
+            font-size: 15px;
+            font-weight: 600;
+            color: #333;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .google-btn:hover {
+            background: #fafafa;
+            border-color: #bbb;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+        }
+
+        .google-icon {
+            width: 20px;
+            height: 20px;
+        }
+
+        /* =========================
+           REGISTER
+           ========================= */
+
+        .register {
+            text-align: center;
+            margin-top: 25px;
+            color: #777;
+            font-size: 14px;
+        }
+
+        .register a {
+            color: #b71c1c;
+            text-decoration: none;
+            font-weight: 600;
+            margin-left: 4px;
+        }
+
+        .register a:hover {
+            text-decoration: underline;
+        }
+
+        /* =========================
+           MOBILE
+           ========================= */
+
+        @media (max-width: 700px) {
+
+            body {
+                padding: 15px;
+            }
+
+            .container {
+                width: 100%;
+                flex-direction: column;
+                min-height: auto;
+            }
+
+            .left,
+            .right {
+                width: 100%;
+            }
+
+            .left {
+                padding: 40px 30px;
+                text-align: center;
+            }
+
+            .left p {
+                margin: auto;
+            }
+
+            .blood-symbol {
+                font-size: 55px;
+            }
+
+            .left h1 {
+                font-size: 30px;
+            }
+
+            .right {
+                padding: 40px 30px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container">
+
+        <!-- LEFT SIDE -->
+
+        <div class="left">
+
+            <div class="blood-symbol">
+                🩸
+            </div>
+
+            <h1>
+                Blood Donor Finder
+            </h1>
+
+            <p>
+                Connect with blood donors and help save lives.
+                Every donation can make a difference.
+            </p>
+
+        </div>
+
+
+        <!-- RIGHT SIDE -->
+
+        <div class="right">
+
+            <h2>
+                Welcome Back
+            </h2>
+
+            <p class="subtitle">
+                Login to your account
+            </p>
+
+
+            <!-- EMAIL / PASSWORD LOGIN -->
+
+            <form id="loginForm">
+
+                <div class="input-group">
+
+                    <label for="email">
+                        Email
+                    </label>
+
+                    <input
+                        type="email"
+                        id="email"
+                        name="email"
+                        placeholder="Enter your email"
+                        required
+                    >
+
+                </div>
+
+
+                <div class="input-group">
+
+                    <label for="password">
+                        Password
+                    </label>
+
+                    <input
+                        type="password"
+                        id="password"
+                        name="password"
+                        placeholder="Enter your password"
+                        required
+                    >
+
+                    <label class="show-password">
+                        <input
+                            type="checkbox"
+                            id="showPassword"
+                        >
+                        Show password
+                    </label>
+
+                </div>
+
+
+                <button
+                    type="submit"
+                    class="login-btn"
+                >
+                    Login
+                </button>
+
+            </form>
+
+
+            <!-- DIVIDER -->
+
+            <div class="divider">
+                OR
+            </div>
+
+
+            <!-- GOOGLE LOGIN -->
+
+            <button
+                type="button"
+                class="google-btn"
+                id="googleLoginBtn"
+            >
+
+                <img
+                    class="google-icon"
+                    src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg"
+                    alt="Google"
+                >
+
+                Continue with Google
+
+            </button>
+
+
+            <!-- REGISTER -->
+
+            <p class="register">
+
+                Don't have an account?
+
+                <a href="/html/register.html">
+                    Register
+                </a>
+
+            </p>
+
+        </div>
+
+    </div>
+
+
+    <script type="module" src="../JS/login.js"></script>
+
+</body>
+
+</html>
