@@ -62,7 +62,9 @@ app.use(
         saveUninitialized: false,
 
         cookie: {
-            maxAge: 1000 * 60 * 60 * 24
+            maxAge: 1000 * 60 * 60 * 24,
+            httpOnly: true,
+            sameSite: "lax"
         }
     })
 );
@@ -124,8 +126,11 @@ passport.use(
 // =========================
 
 passport.serializeUser((user, done) => {
+
     done(null, user.id);
+
 });
+
 
 passport.deserializeUser(async (id, done) => {
 
@@ -387,6 +392,44 @@ app.post("/donors", async (req, res) => {
         }
 
 
+        // =========================
+        // PHONE VALIDATION
+        // =========================
+
+        if (!/^[0-9]{10}$/.test(phone)) {
+
+            return res.status(400).json({
+                message: "Phone number must contain exactly 10 digits"
+            });
+
+        }
+
+
+        // =========================
+        // BLOOD GROUP VALIDATION
+        // =========================
+
+        const validBloodGroups = [
+            "A+",
+            "A-",
+            "B+",
+            "B-",
+            "AB+",
+            "AB-",
+            "O+",
+            "O-"
+        ];
+
+
+        if (!validBloodGroups.includes(bloodGroup)) {
+
+            return res.status(400).json({
+                message: "Invalid blood group"
+            });
+
+        }
+
+
         // Check consent
 
         if (consent !== true) {
@@ -498,8 +541,17 @@ app.get("/donors/search", async (req, res) => {
 
         if (location) {
 
+            // Escape special regex characters
+            // so user input is treated as normal text
+
+            const escapedLocation = location.replace(
+                /[.*+?^${}()|[\]\\]/g,
+                "\\$&"
+            );
+
+
             const locationRegex = new RegExp(
-                location,
+                escapedLocation,
                 "i"
             );
 
@@ -669,10 +721,86 @@ app.get("/donors/recent", async (req, res) => {
 
 
 // =========================
+// MY PROFILE
+// =========================
+
+app.get("/donors/my-profile", async (req, res) => {
+
+    try {
+
+        // Check login
+
+        if (!req.isAuthenticated()) {
+
+            return res.status(401).json({
+
+                message: "Please login first"
+
+            });
+
+        }
+
+
+        // Find donor profile belonging
+        // to the logged-in user
+
+        const donor = await Donor.findOne({
+
+            userId: req.user._id
+
+        });
+
+
+        // User is not a donor
+
+        if (!donor) {
+
+            return res.status(404).json({
+
+                isDonor: false,
+
+                message: "You are not registered as a donor"
+
+            });
+
+        }
+
+
+        // User is a donor
+
+        res.status(200).json({
+
+            isDonor: true,
+
+            donor: donor
+
+        });
+
+
+    } catch (error) {
+
+        console.error(
+            "My profile error:",
+            error
+        );
+
+
+        res.status(500).json({
+
+            message: "Failed to load profile"
+
+        });
+
+    }
+
+});
+
+
+// =========================
 // START SERVER
 // =========================
 
-app.listen(3000, () => {
+app.listen(process.env.PORT , () => {
 
     console.log(
         "Server running on http://localhost:3000"
